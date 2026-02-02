@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plinko Survival - Owner Edition (Fixed)</title>
+    <style>
+        :root {
+            --bg-main: #0f212e;
+            --bg-card: #1a2c38;
+            --green: #00e701;
+            --danger: #ff4500;
+            --blue: #0077ff;
+            --text: #ffffff;
+            --admin-red: #ff3333;
+            --gold: #ffcc00;
+        }
+
+        body {
+            margin: 0; background-color: var(--bg-main); color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden;
+        }
+
+        header {
+            height: 75px; background: var(--bg-card); display: flex;
+            justify-content: space-between; align-items: center;
+            padding: 0 30px; border-bottom: 2px solid #2f4553; flex-shrink: 0;
+        }
+
+        .stats-group { display: flex; gap: 15px; align-items: center; }
+        .stat-box {
+            background: #0f212e; padding: 8px 15px; border-radius: 8px;
+            border: 2px solid var(--blue); font-weight: 900; text-align: center;
+        }
+        .bal-box { border-color: var(--green); color: var(--green); font-size: 1.1rem; }
+
+        .layout { 
+            display: flex; 
+            flex: 1; 
+            padding: 15px; 
+            gap: 15px; 
+        }
+
+        .sidebar {
+            width: 340px; background: var(--bg-card); border-radius: 16px;
+            padding: 15px; display: flex; flex-direction: column; gap: 10px;
+            position: relative; flex-shrink: 0;
+        }
+
+        .hunger-container { background: #0f212e; border-radius: 10px; padding: 12px; border: 1px solid #2f4553; }
+        .hunger-bar-bg { width: 100%; height: 14px; background: #2f4553; border-radius: 10px; overflow: hidden; }
+        #hungerBarFill { height: 100%; background: linear-gradient(90deg, #00e701, #ffaa00, #ff4500); transition: width 0.2s ease-out; }
+
+        .game-view { 
+            flex: 1; 
+            background: rgba(0,0,0,0.2); 
+            border-radius: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            position: relative; 
+            overflow: hidden;
+        }
+        
+        #canvas {
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 850 / 750;
+            object-fit: contain;
+        }
+
+        /* MOBILE SIDE-BY-SIDE POSITIONING */
+        @media (max-width: 950px) {
+            header { height: 60px; padding: 0 10px; }
+            header div:first-child { font-size: 1.2rem !important; }
+            .stat-box { padding: 4px 8px; font-size: 0.7rem; }
+            .bal-box { font-size: 0.8rem; }
+
+            .layout { padding: 5px; gap: 5px; flex-direction: row; } /* Force row on mobile */
+
+            .sidebar { 
+                width: 130px; /* Smaller sidebar */
+                padding: 8px; 
+                gap: 5px; 
+                border-radius: 10px;
+            }
+
+            /* Shrink all controls for mobile fit */
+            .hunger-container { padding: 5px; }
+            .hunger-bar-bg { height: 8px; }
+            label { font-size: 0.5rem !important; margin-bottom: 1px; }
+            input, select { padding: 4px; font-size: 0.7rem; height: auto !important; }
+            .btn-drop { padding: 8px; font-size: 0.7rem; }
+            
+            .food-item { padding: 4px; margin-bottom: 2px; }
+            .food-name { font-size: 0.6rem; }
+            .food-reduction { font-size: 0.5rem; }
+            .food-price { font-size: 0.65rem; }
+
+            .game-view { border-radius: 10px; }
+            .admin-btn { padding: 4px; font-size: 0.55rem; }
+            .login-trigger { margin-top: 5px; font-size: 0.5rem; }
+        }
+
+        #loginModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-card); padding: 30px; border-radius: 15px; 
+            border: 2px solid var(--admin-red); width: 300px; position: relative; text-align: center;
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+        }
+        .close-modal {
+            position: absolute; top: 10px; right: 15px; font-size: 24px; 
+            cursor: pointer; color: #777; font-weight: bold; line-height: 1;
+        }
+        #statusMessage { font-size: 0.85rem; margin-top: 15px; font-weight: bold; min-height: 1.5em; }
+        .error-text { color: var(--admin-red); }
+        .success-text { color: var(--green); }
+
+        #ownerPanel {
+            display: none; background: #2a0a0a; border: 2px solid var(--admin-red);
+            padding: 12px; border-radius: 12px; margin-top: 5px; border-left: 5px solid var(--admin-red);
+        }
+        .admin-scroll { max-height: 250px; overflow-y: auto; padding-right: 5px; }
+        .admin-title { color: var(--admin-red); font-weight: 900; font-size: 0.75rem; margin-bottom: 8px; display: block; }
+        .admin-btn { background: var(--admin-red); color: white; border: none; padding: 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; cursor: pointer; width: 100%; margin-bottom: 6px; text-transform: uppercase; }
+        .admin-btn.active { background: var(--green); color: black; }
+        .admin-input { border-color: var(--admin-red) !important; margin-bottom: 6px; font-size: 0.75rem; height: 32px; background: #0f212e; color: white; border: 1px solid; padding: 0 8px; width: 100%; box-sizing: border-box; }
+        
+        .food-item {
+            background: #213743; padding: 10px; border-radius: 8px; display: flex; 
+            justify-content: space-between; align-items: center; cursor: pointer;
+            margin-bottom: 4px; border: 1px solid transparent; transition: 0.2s;
+        }
+        .food-item:hover { border-color: var(--blue); background: #2a404d; }
+        .food-name { font-weight: bold; font-size: 0.85rem; display: block; }
+        .food-reduction { font-size: 0.7rem; color: #00e701; font-weight: 800; }
+        .food-price { color: var(--green); font-weight: 900; font-size: 0.95rem; }
+
+        .btn-drop { background: var(--green); color: black; border: none; padding: 12px; border-radius: 8px; font-weight: 900; cursor: pointer; text-transform: uppercase; width: 100%; }
+        input, select { background: #0f212e; color: white; border: 1px solid #2f4553; padding: 8px; border-radius: 6px; font-weight: bold; width: 100%; box-sizing: border-box; }
+        label { font-size: 0.6rem; font-weight: 800; color: #b1bad3; text-transform: uppercase; margin-bottom: 2px; display: block; }
+        .login-trigger { font-size: 0.55rem; color: #2f4553; cursor: pointer; text-align: center; margin-top: 15px; padding: 5px; }
+        
+        #gameOverOverlay {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 15, 25, 0.98); z-index: 1000; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center; border-radius: 20px;
+        }
+        .btn-restart { background: #fff; color: #000; border: none; padding: 15px 50px; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="loginModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeLogin()">×</span>
+            <h3 style="color:var(--admin-red); margin:0 0 15px 0; letter-spacing: 1px;">OWNER LOGIN</h3>
+            <label>ENTER ACCESS KEY</label>
+            <input type="password" id="keyInput" placeholder="••••••••">
+            <button class="admin-btn" style="margin-top:15px; height: 40px;" onclick="checkLogin()">VERIFY IDENTITY</button>
+            <div id="statusMessage"></div>
+        </div>
+    </div>
+
+    <header>
+        <div style="font-size: 1.8rem; font-weight: 900;">2x2 <span style="color:var(--green)">PLINKO</span></div>
+        <div class="stats-group">
+            <div class="stat-box" id="timeDisplay">TIME: 00:00</div>
+            <div class="stat-box bal-box" id="balDisplay">$1,000.00</div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="hunger-container">
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-weight:bold; margin-bottom:5px;">
+                    <span>HUNGER</span><span id="hungerPct">0%</span>
+                </div>
+                <div class="hunger-bar-bg"><div id="hungerBarFill" style="width: 0%"></div></div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:5px;">
+                <label>Bet</label>
+                <input type="number" id="betInput" value="10">
+                <label>Risk</label>
+                <select id="riskSelect" onchange="initBoard()">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Med</option>
+                    <option value="high">High</option>
+                </select>
+                <button class="btn-drop" onclick="dropBall()">Drop</button>
+            </div>
+
+            <div id="foodMenu"></div>
+
+            <div id="ownerPanel">
+                <span class="admin-title">ADMIN</span>
+                <div class="admin-scroll">
+                    <button class="admin-btn" id="freezeBtn" onclick="toggleFreeze()">Freeze hunger: OFF</button>
+                    <button class="admin-btn" id="gravBtn" onclick="toggleGravity()">Gravity Flip: OFF</button>
+                    <button class="admin-btn" id="slowBtn" onclick="toggleSlowMo()">Slow-Mo: OFF</button>
+                    <button class="admin-btn" id="revBtn" onclick="toggleReverseWin()">Reverse Win: OFF</button>
+                    <button class="admin-btn" id="spamBtn" onclick="toggleSpam()">Auto-Spam: OFF</button>
+                    <button class="admin-btn" style="background:#ff8800" onclick="ballFlood()">🌊 Ball Flood</button>
+                    <button class="admin-btn" style="background:var(--gold); color:black;" onclick="dropAdminBall()">🌟 Admin Ball</button>
+                    <div style="margin-top: 5px;">
+                        <input type="number" id="customMoney" class="admin-input" placeholder="Cash">
+                        <button class="admin-btn" onclick="applyCustomMoney()" style="background: #ff6666; color: black;">Apply</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-trigger" onclick="openLogin()">Login</div>
+        </aside>
+
+        <main class="game-view">
+            <div id="gameOverOverlay">
+                <h1 style="color:var(--danger); font-size:4rem; margin:0;">STARVED</h1>
+                <div style="background:#1a2c38; padding:20px; border-radius:15px;">
+                    <p style="margin:0; color:#fff;">Time Survived:</p>
+                    <h2 id="finalTime" style="margin:5px 0; color:var(--blue); font-size:2.5rem;">00:00</h2>
+                </div>
+                <button class="btn-restart" onclick="restartGame()">RESTART</button>
+            </div>
+            <canvas id="canvas" width="850" height="750"></canvas>
+        </main>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const RISKS = {
+            low: [5, 3, 2, 1.5, 1.1, 1, 0.5, 1, 1.1, 1.5, 2, 3, 5],
+            medium: [18, 10, 5, 2, 1.2, 1, 0.5, 1, 1.2, 2, 5, 10, 18],
+            high: [1000, 0.5, 0.3, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.3, 0.5, 1000]
+        };
+
+        const FOODS_BASE = [
+            { id: 0, name: "Stale Cracker", val: 8, base: 20 },
+            { id: 1, name: "Small Soda", val: 15, base: 50 },
+            { id: 2, name: "Bowl of Rice", val: 25, base: 110 },
+            { id: 3, name: "Cheeseburger", val: 45, base: 250 },
+            { id: 4, name: "Fried Chicken", val: 65, base: 500 }
+        ];
+
+        let FOODS = JSON.parse(JSON.stringify(FOODS_BASE));
+        FOODS.forEach(f => f.price = f.base);
+
+        let state = { bal: 1000, hunger: 0, isDead: false, seconds: 0 };
+        let owner = { freeze: false, spam: false, gravity: 0.35, slowMo: false, reverseWin: false };
+        let lastTime = performance.now();
+        let pegs = [], slots = [], balls = [];
+
+        function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeLogin() { document.getElementById('loginModal').style.display = 'none'; }
+
+        function checkLogin() {
+            const key = document.getElementById('keyInput').value;
+            if(key === "HenrY168") {
+                document.getElementById('statusMessage').innerText = "Identity Verified.";
+                document.getElementById('statusMessage').className = "success-text";
+                setTimeout(() => { document.getElementById('ownerPanel').style.display = 'block'; closeLogin(); }, 1000);
+            } else {
+                document.getElementById('statusMessage').innerText = "Access Denied.";
+                document.getElementById('statusMessage').className = "error-text";
+            }
+        }
+
+        function toggleFreeze() { owner.freeze = !owner.freeze; updateBtn('freezeBtn', owner.freeze); }
+        function toggleGravity() { owner.gravity = owner.gravity > 0 ? -0.2 : 0.35; updateBtn('gravBtn', owner.gravity < 0); }
+        function toggleSlowMo() { owner.slowMo = !owner.slowMo; updateBtn('slowBtn', owner.slowMo); }
+        function toggleReverseWin() { owner.reverseWin = !owner.reverseWin; updateBtn('revBtn', owner.reverseWin); }
+        function toggleSpam() { owner.spam = !owner.spam; updateBtn('spamBtn', owner.spam); }
+        
+        function updateBtn(id, active) {
+            const btn = document.getElementById(id);
+            btn.classList.toggle('active', active);
+            btn.innerText = btn.innerText.split(':')[0] + ": " + (active ? "ON" : "OFF");
+        }
+
+        function applyCustomMoney() {
+            const amount = parseFloat(document.getElementById('customMoney').value);
+            if(!isNaN(amount)) { state.bal = amount; save(); }
+        }
+
+        function ballFlood() { for(let i=0; i<100; i++) setTimeout(() => dropBall(true), i * 20); }
+        function dropAdminBall() { balls.push({ x: canvas.width/2, y: 10, vx: 0, vy: 0, bet: 100, size: 15, color: 'gold', isAdmin: true }); }
+
+        function initBoard() {
+            pegs = []; slots = [];
+            const risk = document.getElementById('riskSelect').value;
+            const rows = 16, gapX = 42, gapY = 36, startX = canvas.width / 2;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c <= r + 2; c++) {
+                    pegs.push({ x: startX - ((r + 2) * gapX / 2) + (c * gapX), y: 50 + r * gapY });
+                }
+            }
+            const mults = RISKS[risk];
+            const w = 52, startXSlots = (canvas.width - (mults.length * w)) / 2;
+            mults.forEach((m, i) => {
+                let color = m >= 1000 ? '#ff00ff' : (m <= 0.5 ? '#2f4553' : (risk === 'medium' && i >= 4 && i <= 8 ? '#f6e05e' : '#ffa600'));
+                slots.push({ x: startXSlots + i*w, y: 680, w: w-6, h: 32, val: m, color });
+            });
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const menu = document.getElementById('foodMenu');
+            menu.innerHTML = '';
+            FOODS.forEach(f => {
+                const item = document.createElement('div');
+                item.className = 'food-item';
+                item.onclick = () => eat(f.id);
+                item.innerHTML = `<div><span class="food-name">${f.name}</span><span class="food-reduction">-${f.val}%</span></div><div class="food-price">$${Math.floor(f.price)}</div>`;
+                menu.appendChild(item);
+            });
+        }
+
+        function eat(id) {
+            let f = FOODS.find(food => food.id === id);
+            if (state.bal >= f.price && !state.isDead) {
+                state.bal -= f.price;
+                state.hunger = Math.max(0, state.hunger - f.val);
+                f.price *= 1.3;
+                renderMenu();
+                save();
+            }
+        }
+
+        function dropBall(free = false) {
+            const betInput = document.getElementById('betInput');
+            const bet = free ? 0 : parseFloat(betInput.value);
+            if ((state.bal >= bet || owner.spam) && !state.isDead) {
+                if(!owner.spam && !free) state.bal -= bet;
+                balls.push({ x: canvas.width/2 + (Math.random()-0.5)*5, y: 10, vx: 0, vy: 0, bet: bet, size: 7, color: '#ff007f' });
+                save();
+            }
+        }
+
+        function save() {
+            document.getElementById('balDisplay').innerText = `$${state.bal.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+            document.getElementById('hungerBarFill').style.width = state.hunger + '%';
+            document.getElementById('hungerPct').innerText = Math.floor(state.hunger) + '%';
+            document.getElementById('timeDisplay').innerText = `TIME: ${formatTime(state.seconds)}`;
+            
+            if (state.hunger >= 100 && !state.isDead) {
+                state.isDead = true;
+                document.getElementById('finalTime').innerText = formatTime(state.seconds);
+                document.getElementById('gameOverOverlay').style.display = 'flex';
+            }
+        }
+
+        function formatTime(s) {
+            let m = Math.floor(s / 60); let sec = Math.floor(s % 60);
+            return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function restartGame() {
+            state = { bal: 1000, hunger: 0, isDead: false, seconds: 0 };
+            FOODS = JSON.parse(JSON.stringify(FOODS_BASE));
+            FOODS.forEach(f => f.price = f.base);
+            lastTime = performance.now();
+            document.getElementById('gameOverOverlay').style.display = 'none';
+            initBoard(); save();
+        }
+
+        function loop(now) {
+            const realDelta = (now - lastTime) / 1000;
+            lastTime = now;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!state.isDead) {
+                if(!owner.freeze) state.hunger = Math.min(100, state.hunger + (100 / 180 * realDelta)); 
+                state.seconds += realDelta;
+                if(owner.spam && Math.random() < 0.2) dropBall();
+                save();
+            }
+
+            pegs.forEach(p => { ctx.fillStyle = "rgba(255,255,255,0.15)"; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill(); });
+            slots.forEach(s => {
+                let displayVal = owner.reverseWin ? (s.val <= 1 ? 100 : 0.1) : s.val;
+                ctx.fillStyle = s.color; ctx.beginPath(); ctx.roundRect(s.x, s.y, s.w, s.h, 15); ctx.fill();
+                ctx.fillStyle = "#fff"; ctx.font = "bold 11px Arial"; ctx.textAlign = "center";
+                ctx.fillText(displayVal + 'x', s.x + s.w/2, s.y + 20);
+            });
+
+            balls.forEach((b, i) => {
+                b.vy += owner.gravity * (owner.slowMo ? 0.2 : 1);
+                b.x += b.vx; b.y += b.vy;
+                
+                pegs.forEach(p => {
+                    let dx = b.x - p.x, dy = b.y - p.y, d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < (b.size + 4)) {
+                        let a = Math.atan2(dy, dx);
+                        b.vx = Math.cos(a) * 3.8 + (Math.random()-0.5);
+                        b.vy = Math.sin(a) * 3.8;
+                    }
+                });
+
+                if (b.y > 680 || b.y < -50) {
+                    let s = slots.find(sl => b.x > sl.x && b.x < sl.x + sl.w);
+                    if (s) {
+                        let mult = owner.reverseWin ? (s.val <= 1 ? 100 : 0.1) : s.val;
+                        state.bal += (b.bet * mult);
+                        save();
+                    }
+                    balls.splice(i, 1);
+                }
+                ctx.fillStyle = b.color || "#ff007f"; ctx.beginPath(); ctx.arc(b.x, b.y, b.size || 7, 0, Math.PI*2); ctx.fill();
+            });
+            requestAnimationFrame(loop);
+        }
+
+        initBoard();
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
