@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DOOM 2x2: 3D Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap');
@@ -156,6 +156,8 @@
             font-family: 'Press Start 2P'; 
             border: 20px solid #000; 
             box-sizing: border-box;
+            overflow-y: auto;
+            padding: 40px 20px;
         }
         h1 { 
             font-size: 80px; 
@@ -180,6 +182,7 @@
             cursor: pointer; 
             margin: 10px; 
             width: 500px; 
+            max-width: 90%;
             text-align: center; 
             transition: 0.2s;
             text-shadow: 2px 2px 0 #000;
@@ -369,6 +372,7 @@
             cursor: pointer;
             margin: 15px;
             width: 400px;
+            max-width: 80%;
             text-align: center;
             transition: 0.2s;
             pointer-events: auto;
@@ -419,6 +423,154 @@
             50% { border-color: #00f; box-shadow: 0 0 20px #00f; }
             100% { border-color: #0ff; box-shadow: 0 0 10px #0ff; }
         }
+        
+        /* Control Selector */
+        .control-selector {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .control-btn {
+            font-family: 'Press Start 2P';
+            padding: 25px 40px;
+            font-size: 24px;
+            background: #000;
+            color: #fff;
+            border: 4px solid #ff0;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .control-btn:hover {
+            background: #ff0;
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 0 40px #ff0;
+        }
+        .control-icon {
+            font-size: 60px;
+        }
+        .control-label {
+            font-size: 20px;
+        }
+        
+        /* Mobile Controls */
+        #mobile-controls {
+            position: absolute;
+            bottom: 120px;
+            left: 0;
+            width: 100%;
+            display: none;
+            pointer-events: auto;
+            z-index: 1000;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        .movement-pad {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            background: rgba(0,0,0,0.7);
+            border: 3px solid #ff0000;
+            border-radius: 50%;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 5px;
+            padding: 5px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px #f00;
+        }
+        .move-btn {
+            background: rgba(128,0,0,0.8);
+            border: 2px solid #ff8888;
+            border-radius: 15px;
+            color: white;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.1s;
+            text-shadow: 2px 2px 0 #000;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .move-btn:active {
+            background: #f00;
+            border-color: #ff0;
+            transform: scale(0.95);
+            box-shadow: 0 0 20px #f00;
+        }
+        .action-pad {
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
+        }
+        .action-btn {
+            width: 120px;
+            height: 120px;
+            background: rgba(0,0,0,0.7);
+            border: 3px solid #ff0000;
+            border-radius: 50%;
+            color: white;
+            font-size: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.1s;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 20px #f00;
+            text-shadow: 2px 2px 0 #000;
+        }
+        .action-btn:active {
+            background: #f00;
+            border-color: #ff0;
+            transform: scale(0.95);
+            box-shadow: 0 0 30px #f00;
+        }
+        .weapon-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #ff8800;
+            border-radius: 15px;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.1s;
+            text-shadow: 2px 2px 0 #000;
+            font-family: 'Press Start 2P';
+        }
+        .weapon-btn.active {
+            background: #f00;
+            border-color: #ff0;
+            box-shadow: 0 0 20px #f00;
+            transform: scale(1.1);
+        }
+        .weapon-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 40px; }
+            .difficulty-btn { width: 90%; padding: 15px; font-size: 14px; }
+            .control-btn { padding: 15px 20px; font-size: 18px; }
+            .control-icon { font-size: 40px; }
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -427,6 +579,30 @@
     <div id="message-overlay"></div>
     <div id="crosshair"></div>
     <div id="pointer-lock-instructions" class="pointer-lock-instructions">🔒 CLICK HERE TO LOCK MOUSE & PLAY</div>
+    
+    <!-- Mobile Controls (Hidden by default) -->
+    <div id="mobile-controls">
+        <div class="movement-pad" id="movement-pad">
+            <div></div>
+            <div class="move-btn" id="move-up">▲</div>
+            <div></div>
+            <div class="move-btn" id="move-left">◀</div>
+            <div class="move-btn" id="move-down">▼</div>
+            <div class="move-btn" id="move-right">▶</div>
+            <div></div>
+            <div class="move-btn" id="move-jump">⤴</div>
+            <div></div>
+        </div>
+        <div class="action-pad">
+            <div class="action-btn" id="action-fire">🔥</div>
+            <div class="weapon-row">
+                <div class="weapon-btn" id="weapon-1">1</div>
+                <div class="weapon-btn" id="weapon-2">2</div>
+                <div class="weapon-btn" id="weapon-3">3</div>
+                <div class="weapon-btn" id="weapon-5">5</div>
+            </div>
+        </div>
+    </div>
 
     <div id="ui-layer">
         <canvas id="weapon-canvas" width="800" height="600"></canvas>
@@ -464,22 +640,38 @@
     <div id="start-screen" class="menu-screen">
         <button id="hidden-admin-btn" onclick="handleAdminClick()">💀</button>
         <h1>DOOM 2x2</h1>
-        <div style="border: 3px solid #f00; padding: 15px; margin-bottom: 30px; font-family: 'Press Start 2P'; font-size: 16px; text-align: left; background: rgba(0,0,0,0.9); box-shadow: 0 0 20px #f00;">
+        <div style="border: 3px solid #f00; padding: 15px; margin-bottom: 30px; font-family: 'Press Start 2P'; font-size: 16px; text-align: left; background: rgba(0,0,0,0.9); box-shadow: 0 0 20px #f00; max-width: 90%;">
             <p style="color: #0ff; margin: 10px 0; text-shadow: 0 0 10px #0ff;">[1] ANTI VIRUS SHOTGUN > RANSOMWARE (35 DMG) / TROJAN (35 DMG) / WORM (35 DMG)</p>
             <p style="color: #fa0; margin: 10px 0; text-shadow: 0 0 10px #fa0;">[2] FIREWALL PISTOL > DDOS SWARM (25 DMG)</p>
             <p style="color: #fff; margin: 10px 0; text-shadow: 0 0 10px #fff;">[3] VACCINE SPIKE > MELEE ALL (120 DMG)</p>
             <p style="color: #f55; margin: 10px 0; text-shadow: 0 0 10px #f55;">[5] ROOT ACCESS RPG > DESTROY EVERYTHING (999 DMG)</p>
         </div>
-        <p style="margin-bottom: 30px; font-size: 20px; text-shadow: 0 0 10px #f00;">SELECT DIFFICULTY:</p>
+        
+        <!-- Control Method Selection -->
+        <p style="margin-bottom: 20px; font-size: 24px; text-shadow: 0 0 10px #ff0;">SELECT CONTROL METHOD</p>
+        <div class="control-selector">
+            <div class="control-btn" onclick="setControlMethod('pc')">
+                <span class="control-icon">🖥️</span>
+                <span class="control-label">PC / MOUSE</span>
+                <span style="font-size: 14px; color: #0ff;">Mouse Lock + Keyboard</span>
+            </div>
+            <div class="control-btn" onclick="setControlMethod('mobile')">
+                <span class="control-icon">📱</span>
+                <span class="control-label">MOBILE / TOUCH</span>
+                <span style="font-size: 14px; color: #0ff;">Touch Controls + Gyro</span>
+            </div>
+        </div>
+        
+        <p style="margin-bottom: 20px; margin-top: 20px; font-size: 20px; text-shadow: 0 0 10px #f00;">SELECT DIFFICULTY:</p>
         <button class="difficulty-btn" onclick="startGame(0.5, 10, false)">I'm Too Young To Die</button>
         <button class="difficulty-btn" onclick="startGame(1.0, 20, false)">Hurt Me Plenty</button>
         <button class="difficulty-btn" onclick="startGame(1.5, 30, false)">Ultra-Violence</button>
         <button class="difficulty-btn" onclick="startGame(2.5, 50, false)">NIGHTMARE!</button>
         <button class="difficulty-btn inf-mode" onclick="startGame(1.0, 0, true)">🔥 INFINITE MODE 🔥</button>
-        <div style="margin-top: 30px; font-size: 12px; color: #888; text-align: center;">
+        <div style="margin-top: 30px; font-size: 12px; color: #888; text-align: center; max-width: 90%;">
             <p>WASD: Move | MOUSE: Aim | CLICK: Fire | 1-3,5: Switch Weapons</p>
             <p>SPACE: Jump | SHIFT: Fly Down (Fly Mode) | INFINITE: No kill limit</p>
-            <p style="color: #0ff; margin-top: 10px;">🔒 CLICK ANYWHERE TO LOCK MOUSE</p>
+            <p style="color: #0ff; margin-top: 10px;">🔒 CLICK ANYWHERE TO LOCK MOUSE (PC MODE)</p>
         </div>
     </div>
 
@@ -499,6 +691,209 @@
     </div>
 
     <script>
+        // ============================================
+        // CONTROL METHOD SELECTION (PC vs MOBILE)
+        // ============================================
+        let controlMethod = 'pc'; // Default to PC
+        
+        function setControlMethod(method) {
+            controlMethod = method;
+            
+            // Show/hide mobile controls
+            const mobileControls = document.getElementById('mobile-controls');
+            const pointerInstructions = document.getElementById('pointer-lock-instructions');
+            
+            if (method === 'mobile') {
+                mobileControls.style.display = 'flex';
+                pointerInstructions.style.display = 'none';
+                document.body.style.cursor = 'default';
+                
+                // Initialize mobile controls
+                initMobileControls();
+                showMessage("📱 MOBILE MODE ACTIVATED - TOUCH TO PLAY", "#0ff");
+            } else {
+                mobileControls.style.display = 'none';
+                pointerInstructions.style.display = 'block';
+                showMessage("🖥️ PC MODE ACTIVATED - CLICK TO LOCK MOUSE", "#0ff");
+            }
+        }
+        
+        // ============================================
+        // MOBILE TOUCH CONTROLS
+        // ============================================
+        let mobileKeys = { w:0, a:0, s:0, d:0, space:0 };
+        let mobileFirePressed = false;
+        let lastMobileShot = 0;
+        
+        function initMobileControls() {
+            // Movement buttons
+            document.getElementById('move-up').addEventListener('touchstart', (e) => { e.preventDefault(); mobileKeys.w = 1; });
+            document.getElementById('move-up').addEventListener('touchend', (e) => { e.preventDefault(); mobileKeys.w = 0; });
+            document.getElementById('move-down').addEventListener('touchstart', (e) => { e.preventDefault(); mobileKeys.s = 1; });
+            document.getElementById('move-down').addEventListener('touchend', (e) => { e.preventDefault(); mobileKeys.s = 0; });
+            document.getElementById('move-left').addEventListener('touchstart', (e) => { e.preventDefault(); mobileKeys.a = 1; });
+            document.getElementById('move-left').addEventListener('touchend', (e) => { e.preventDefault(); mobileKeys.a = 0; });
+            document.getElementById('move-right').addEventListener('touchstart', (e) => { e.preventDefault(); mobileKeys.d = 1; });
+            document.getElementById('move-right').addEventListener('touchend', (e) => { e.preventDefault(); mobileKeys.d = 0; });
+            document.getElementById('move-jump').addEventListener('touchstart', (e) => { e.preventDefault(); mobileKeys.space = 1; });
+            document.getElementById('move-jump').addEventListener('touchend', (e) => { e.preventDefault(); mobileKeys.space = 0; });
+            
+            // Fire button
+            document.getElementById('action-fire').addEventListener('touchstart', (e) => { 
+                e.preventDefault(); 
+                mobileFirePressed = true;
+                if (gameActive) mobileFire();
+            });
+            document.getElementById('action-fire').addEventListener('touchend', (e) => { 
+                e.preventDefault(); 
+                mobileFirePressed = false; 
+            });
+            
+            // Weapon buttons
+            document.getElementById('weapon-1').addEventListener('touchstart', (e) => { 
+                e.preventDefault(); 
+                player.tool = 1; 
+                updateHUD(); 
+                highlightMobileWeapon(1);
+            });
+            document.getElementById('weapon-2').addEventListener('touchstart', (e) => { 
+                e.preventDefault(); 
+                player.tool = 2; 
+                updateHUD(); 
+                highlightMobileWeapon(2);
+            });
+            document.getElementById('weapon-3').addEventListener('touchstart', (e) => { 
+                e.preventDefault(); 
+                player.tool = 3; 
+                updateHUD(); 
+                highlightMobileWeapon(3);
+            });
+            document.getElementById('weapon-5').addEventListener('touchstart', (e) => { 
+                e.preventDefault(); 
+                if (cheats.rocket || adminUnlocked) {
+                    player.tool = 5; 
+                    updateHUD(); 
+                    highlightMobileWeapon(5);
+                }
+            });
+            
+            // Mouse move simulation for mobile (gyro/accelerometer)
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', handleMobileOrientation);
+            }
+        }
+        
+        function highlightMobileWeapon(tool) {
+            document.querySelectorAll('.weapon-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`weapon-${tool}`).classList.add('active');
+        }
+        
+        // Mobile gyroscope aiming
+        let mobileRotationY = 0;
+        let mobileRotationX = 0;
+        
+        function handleMobileOrientation(event) {
+            if (controlMethod === 'mobile' && gameActive) {
+                // Convert phone orientation to camera rotation
+                if (event.beta !== null && event.gamma !== null) {
+                    mobileRotationX = (event.beta / 90) * 1.5; // Forward/back tilt
+                    mobileRotationX = Math.max(-1.5, Math.min(1.5, mobileRotationX));
+                    
+                    mobileRotationY = (event.gamma / 45) * 3; // Left/right tilt
+                }
+            }
+        }
+        
+        // Mobile fire function
+        function mobileFire() {
+            const t = TOOLS[player.tool];
+            const now = Date.now();
+            
+            if (!cheats.rapid && now - lastMobileShot < t.delay) return;
+            lastMobileShot = now;
+            
+            // Recoil animation
+            if(gunMesh) {
+                gunMesh.position.z += 0.25;
+                gunMesh.rotation.x += 0.1;
+                setTimeout(() => {
+                    if(gunMesh) {
+                        gunMesh.position.z -= 0.25;
+                        gunMesh.rotation.x -= 0.1;
+                    }
+                }, 80);
+                
+                // Muzzle flash
+                if(player.tool !== 3) {
+                    const flash = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.2, 4, 4),
+                        new THREE.MeshBasicMaterial({
+                            color: player.tool === 5 ? 0xff8800 : 0xffff00,
+                            transparent: true,
+                            opacity: 0.9
+                        })
+                    );
+                    flash.position.set(0, -0.3, player.tool === 5 ? -1.0 : -0.9);
+                    weaponGroup.add(flash);
+                    setTimeout(() => { if(flash.parent) weaponGroup.remove(flash); }, 50);
+                }
+            }
+
+            if(t.type === 'hitscan' || t.type === 'melee') {
+                const rayCount = player.tool === 1 ? 6 : 1;
+                
+                for(let r = 0; r < rayCount; r++) {
+                    const ray = new THREE.Raycaster();
+                    const spread = player.tool === 1 ? 0.05 : 0;
+                    
+                    ray.setFromCamera(new THREE.Vector2(
+                        (Math.random() - 0.5) * spread,
+                        (Math.random() - 0.5) * spread
+                    ), camera);
+                    
+                    const dist = t.type === 'melee' ? t.range : 1000;
+                    const hits = ray.intersectObjects(enemies.map(e => e.mesh), true);
+                    
+                    if(hits.length > 0 && hits[0].distance <= dist) {
+                        let obj = hits[0].object;
+                        while(obj.parent && obj.parent.type !== 'Scene') obj = obj.parent;
+                        const enemy = enemies.find(e => e.mesh === obj);
+                        if(enemy && !enemy.isDead && enemy.deathTimer <= 0) {
+                            damageEnemy(enemy, t);
+                        }
+                    }
+                }
+            } else {
+                // Rocket with smoke trail
+                const rocket = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.1, 0.1, 0.3, 6),
+                    new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0x553300 })
+                );
+                rocket.rotation.x = Math.PI/2;
+                rocket.position.copy(camera.position);
+                
+                const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+                scene.add(rocket);
+                
+                projectiles.push({
+                    mesh: rocket,
+                    vel: dir,
+                    type: player.tool
+                });
+                
+                // Initial smoke burst
+                for(let i = 0; i < 5; i++) {
+                    const smoke = createSmoke(camera.position.clone().add(dir.clone().multiplyScalar(-0.5)));
+                    smoke.vel = dir.clone().multiplyScalar(-0.3).add(new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.3,
+                        Math.random() * 0.3,
+                        (Math.random() - 0.5) * 0.3
+                    ));
+                    smokeTrails.push(smoke);
+                }
+            }
+        }
+
         const TOOLS = {
             1: { name: "ANTI VIRUS SHOTGUN", damage: 35, delay: 700, type: "hitscan", spread: 0.1 },
             2: { name: "FIREWALL PISTOL", damage: 25, delay: 200, type: "hitscan" },
@@ -627,9 +1022,9 @@
                 instructionsEl.style.opacity = '1';
                 
                 // If game is active, try to re-lock automatically
-                if (gameActive) {
+                if (gameActive && controlMethod === 'pc') {
                     setTimeout(() => {
-                        if (gameActive && !isPointerLocked) {
+                        if (gameActive && !isPointerLocked && controlMethod === 'pc') {
                             requestPointerLock();
                         }
                     }, 100);
@@ -652,18 +1047,22 @@
 
         // Global click handler for pointer lock
         document.addEventListener('click', function globalClickHandler(e) {
+            // Only for PC mode
+            if (controlMethod !== 'pc') return;
+            
             // Don't lock if clicking on admin panel or buttons
             if (e.target.closest('button') || 
                 e.target.closest('input') || 
                 e.target.closest('#admin-panel') || 
                 e.target.closest('#admin-login-modal') ||
                 e.target.closest('.difficulty-btn') ||
-                e.target.closest('.gameover-btn')) {
+                e.target.closest('.gameover-btn') ||
+                e.target.closest('.control-btn')) {
                 return;
             }
             
             // Only lock if game is active or on start screen (for initial lock)
-            if (gameActive && !isPointerLocked) {
+            if (gameActive && !isPointerLocked && controlMethod === 'pc') {
                 requestPointerLock();
             }
         });
@@ -2105,12 +2504,14 @@
             
             initGame();
             
-            // Force pointer lock when game starts
-            setTimeout(() => {
-                if (gameActive && !isPointerLocked) {
-                    requestPointerLock();
-                }
-            }, 100);
+            // Force pointer lock when game starts (PC mode only)
+            if (controlMethod === 'pc') {
+                setTimeout(() => {
+                    if (gameActive && !isPointerLocked) {
+                        requestPointerLock();
+                    }
+                }, 100);
+            }
         }
         
         function initGame() {
@@ -2498,6 +2899,20 @@
             const delta = 0.016;
             const currentTime = Date.now();
 
+            // Handle input based on control method
+            if (controlMethod === 'mobile') {
+                // Mobile: Use touch controls + gyro
+                keys.w = mobileKeys.w;
+                keys.s = mobileKeys.s;
+                keys.a = mobileKeys.a;
+                keys.d = mobileKeys.d;
+                keys.space = mobileKeys.space;
+                
+                // Mobile gyro aiming
+                camera.rotation.y = mobileRotationY;
+                camera.rotation.x = mobileRotationX;
+            }
+
             // Movement
             const moveSpeed = player.speed * delta;
             const moveVector = new THREE.Vector3();
@@ -2658,31 +3073,25 @@
                     e.hud.style.display = (screenPos.z > 1 || screenPos.z < -1) ? 'none' : 'block';
                 }
                 
-                // Damage player on contact - FIXED: Only damage if not invincible
+                // Damage player on contact
                 if(!cheats.god && !e.isDead && e.deathTimer <= 0) {
                     const distanceToPlayer = e.mesh.position.distanceTo(camera.position);
                     
-                    // Only damage if within range and player not invincible
                     if(distanceToPlayer < 3.0 && player.invincibleTimer <= 0) {
-                        // Calculate damage based on monster type and difficulty
                         let damage = e.data.damage * diffMult;
-                        if(e.type === 'ddos') damage = 25; // DDOS does more damage
+                        if(e.type === 'ddos') damage = 25;
                         if(e.type === 'trojan') damage = 20;
                         if(e.type === 'ransom') damage = 15;
                         if(e.type === 'worm') damage = 12;
                         
                         player.hp -= damage;
-                        
-                        // Set invincibility timer (1 second of immunity)
                         player.invincibleTimer = 1.0;
                         
-                        // Blood splatter on screen
                         if(player.hurtTimer <= 0) {
                             document.getElementById('blood-splatter').style.opacity = 0.5;
                             player.hurtTimer = 0.5;
                         }
                         
-                        // Show damage taken
                         showDamagePopup(camera.position, damage, false);
                         
                         updateHUD();
@@ -2711,7 +3120,6 @@
 
         // HUD Update
         function updateHUD() {
-            // Clamp health between 0 and max
             player.hp = Math.max(0, Math.min(player.maxHp, player.hp));
             document.getElementById('hp-val').innerText = Math.floor(player.hp) + "%";
             
@@ -2765,7 +3173,6 @@
                 document.getElementById('admin-error').innerHTML = '';
                 showMessage("ADMIN ACCESS GRANTED!", "#0f0");
             } else {
-                // TAUNT THE PLAYER FOR WRONG CODE
                 const taunts = [
                     "NICE TRY, NOOB!",
                     "WRONG! GET GOOD!",
@@ -2800,7 +3207,7 @@
             }
             if(t === 'god' && cheats.god) {
                 showMessage("GOD MODE ACTIVATED!", "#0f0");
-                player.invincibleTimer = 999; // GOD mode
+                player.invincibleTimer = 999;
             }
             if(t === 'fly') {
                 player.velocity.y = 0;
@@ -2904,6 +3311,8 @@
 
         // Event Listeners
         document.addEventListener('keydown', e => {
+            if (controlMethod !== 'pc') return;
+            
             if(e.code === 'KeyW') keys.w = 1;
             if(e.code === 'KeyS') keys.s = 1;
             if(e.code === 'KeyA') keys.a = 1;
@@ -2928,7 +3337,6 @@
                 panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
             }
             
-            // ESC key releases pointer lock
             if(e.key === 'Escape' && isPointerLocked) {
                 if (document.exitPointerLock) {
                     document.exitPointerLock();
@@ -2937,6 +3345,8 @@
         });
         
         document.addEventListener('keyup', e => {
+            if (controlMethod !== 'pc') return;
+            
             if(e.code === 'KeyW') keys.w = 0;
             if(e.code === 'KeyS') keys.s = 0;
             if(e.code === 'KeyA') keys.a = 0;
@@ -2946,15 +3356,14 @@
         });
         
         document.addEventListener('mousemove', e => {
-            // ONLY move camera if pointer is locked
-            if(gameActive && isPointerLocked) {
+            if(gameActive && isPointerLocked && controlMethod === 'pc') {
                 camera.rotation.y -= e.movementX * 0.002;
                 camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x - e.movementY * 0.002));
             }
         });
         
         document.addEventListener('mousedown', e => {
-            if(gameActive && e.button === 0 && isPointerLocked) {
+            if(gameActive && e.button === 0 && isPointerLocked && controlMethod === 'pc') {
                 fire();
             }
         });
